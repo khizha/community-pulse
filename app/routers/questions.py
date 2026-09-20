@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from pydantic import ValidationError
 
-from app.models import db, Question
+from app.models import db, Question, Category
 from app.schemas.questions import (
     QuestionCreate,
     QuestionRead,
@@ -59,7 +59,22 @@ def create_question():
             "messages": exc.errors(),
         }), 422
 
-    question = Question(text=question_in.text)
+#    question = Question(text=question_in.text)
+    category = db.session.get(
+        Category,
+        question_in.category_id
+    )
+
+    if category is None:
+        return jsonify({
+            "error": f"Category with id={question_in.category_id} not found"
+        }), 404
+
+    question = Question(
+        text=question_in.text,
+        category=category
+    )
+
     db.session.add(question)
     db.session.commit()
 

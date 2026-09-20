@@ -5,12 +5,30 @@ from pydantic import BaseModel, Field, ConfigDict, StringConstraints, TypeAdapte
 QuestionText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=5, max_length=100)]
 
 
+class CategoryBase(BaseModel):
+    name: str
+
+
+class CategoryCreate(CategoryBase):
+    pass
+
+
+class CategoryRead(CategoryBase):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+
+
+class CategoryUpdate(BaseModel):
+    name: str | None = None
+
+
 class QuestionBase(BaseModel):
     text: QuestionText
 
 
 class QuestionCreate(QuestionBase):
-    pass
+    category_id: int
 
 
 class QuestionUpdate(QuestionBase):
@@ -21,6 +39,7 @@ class QuestionRead(QuestionBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    category: CategoryRead
 
 
 QuestionsList = TypeAdapter(list[QuestionRead])
